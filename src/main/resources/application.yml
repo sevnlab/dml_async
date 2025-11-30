@@ -1,0 +1,107 @@
+server:
+  port: 7777
+
+logging:
+  level:
+    root: INFO
+    org.springframework: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql: TRACE
+    org.hibernate: WARN
+    com.zaxxer.hikari: WARN
+    com.example: DEBUG
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+
+spring:
+  profiles:
+    active: local   # 기본값 설정 (OK)
+
+  datasource:
+    service-a:
+      driver-class-name: oracle.jdbc.OracleDriver
+      jdbc-url: jdbc:oracle:thin:@192.168.87.129:1521/ORCLPDB1
+      username: SEVEN
+      password: SEVEN
+      hikari:
+        maximum-pool-size: 10
+        minimum-idle: 5
+        connection-timeout: 30000
+        idle-timeout: 600000
+        max-lifetime: 1800000
+
+    service-b:
+      driver-class-name: oracle.jdbc.OracleDriver
+      jdbc-url: jdbc:oracle:thin:@localhost:1521/orcl
+      username: SEVEN
+      password: SEVEN
+      hikari:
+        maximum-pool-size: 10
+        minimum-idle: 5
+        connection-timeout: 30000
+        idle-timeout: 600000
+        max-lifetime: 1800000
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+  datasource:
+    service-a:
+      driver-class-name: oracle.jdbc.OracleDriver
+      jdbc-url: jdbc:oracle:thin:@192.168.87.129:1521/ORCLPDB1
+      username: SEVEN
+      password: SEVEN
+      hikari:
+        maximum-pool-size: 10
+        minimum-idle: 5
+        connection-timeout: 30000
+        idle-timeout: 600000
+        max-lifetime: 1800000
+
+    service-b:
+      driver-class-name: oracle.jdbc.OracleDriver
+      jdbc-url: jdbc:oracle:thin:@localhost:1521/orcl
+      username: SEVEN
+      password: SEVEN
+      hikari:
+        maximum-pool-size: 10
+        minimum-idle: 5
+        connection-timeout: 30000
+        idle-timeout: 600000
+        max-lifetime: 1800000
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: real
+
+  datasource:
+    service-a:
+      driver-class-name: oracle.jdbc.OracleDriver
+      jdbc-url: jdbc:oracle:thin:@192.168.87.129:1521/ORCLPDB1
+      username: SEVEN
+      password: SEVEN
+      hikari:
+        maximum-pool-size: 10
+        minimum-idle: 5
+        connection-timeout: 30000
+        idle-timeout: 600000
+        max-lifetime: 1800000
+
+    service-b:
+      driver-class-name: oracle.jdbc.OracleDriver
+      jdbc-url: jdbc:oracle:thin:@localhost:1521/orcl
+      username: SEVEN
+      password: SEVEN
+      hikari:
+        maximum-pool-size: 10
+        minimum-idle: 5
+        connection-timeout: 30000
+        idle-timeout: 600000
+        max-lifetime: 1800000

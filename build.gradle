@@ -1,22 +1,15 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '4.0.0'
+	id 'org.springframework.boot' version '3.5.6'
 	id 'io.spring.dependency-management' version '1.1.7'
 }
 
 group = 'com.example'
 version = '0.0.1-SNAPSHOT'
-description = 'dml_async'
 
 java {
 	toolchain {
-		languageVersion = JavaLanguageVersion.of(25)
-	}
-}
-
-configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
+		languageVersion = JavaLanguageVersion.of(21)
 	}
 }
 
@@ -28,14 +21,28 @@ repositories {
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
-	implementation name: 'ojdbc11'
+
+	// JPA + HikariCP + JDBC + Transaction 모두 포함
+	implementation 'org.springframework.boot:spring-boot-starter-jpa'
+
+	// 웹 기능
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+
+	// 비동기 AOP
+	implementation 'org.springframework.boot:spring-boot-starter-aop'
+
+	// 운영 모니터링
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+	// Oracle driver
+	implementation name: 'ojdbc11'
+
+	// Lombok
 	compileOnly 'org.projectlombok:lombok'
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	annotationProcessor 'org.projectlombok:lombok'
-	testImplementation 'org.springframework.boot:spring-boot-starter-jdbc-test'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	// 테스트
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
 tasks.named('test') {

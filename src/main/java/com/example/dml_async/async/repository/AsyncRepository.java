@@ -1,6 +1,8 @@
 package com.example.dml_async.async.repository;
 
 import com.example.dml_async.async.dto.ResultDto;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -9,7 +11,7 @@ import java.util.List;
 //@CustomLog
 @Repository
 @RequiredArgsConstructor
-public class AsyncRepository extends CustomExpression {
+public class AsyncRepository {
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -64,7 +66,7 @@ public class AsyncRepository extends CustomExpression {
         var query = entityManager.createNativeQuery(sql);
         query.setParameter("pkList", pkList);
         int updated = query.executeUpdate();
-        log.debug("업데이트 완료: {}건", updated);
+//        log.debug("업데이트 완료: {}건", updated);
     }
 
     public List<ResultDto> bulkSelect(List<String> pkList, String jobName) {
@@ -80,7 +82,7 @@ public class AsyncRepository extends CustomExpression {
         var query = entityManager.createNativeQuery(sql);
         query.setParameter("pkList", pkList);
         List<ResultDto> result = query.getResultList();
-        log.debug("조회 완료 : {}건", result.size());
+//        log.debug("조회 완료 : {}건", result.size());
 
         return result;
     }

@@ -19,21 +19,19 @@ spring:
 
   datasource:
     driver-class-name: oracle.jdbc.OracleDriver
-    jdbc-url: jdbc:oracle:thin:@192.168.87.129:1521/ORCLPDB1
+    url: jdbc:oracle:thin:@localhost:1521/orcl
     username: SEVEN
     password: SEVEN
+#    driver-class-name: oracle.jdbc.OracleDriver
+#    jdbc-url: jdbc:oracle:thin:@192.168.87.129:1521/ORCLPDB1
+#    username: SEVEN
+#    password: SEVEN
     hikari:
       maximum-pool-size: 10
       minimum-idle: 5
       connection-timeout: 30000
       idle-timeout: 600000
       max-lifetime: 1800000
-
-#    driver-class-name: oracle.jdbc.OracleDriver
-#    jdbc-url: jdbc:oracle:thin:@localhost:1521/orcl
-#    username: SEVEN
-#    password: SEVEN
-
 
 ---
 

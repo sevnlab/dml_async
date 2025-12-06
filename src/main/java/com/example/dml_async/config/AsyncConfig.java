@@ -13,9 +13,9 @@ import java.util.concurrent.ThreadPoolExecutor;
 public class AsyncConfig {
 
     /**
-     * DB I/O í—ˆìš©ëŸ‰ ê¸°ì¤€ìœ¼ë¡œ ë³‘ë ¬ë„ ê²°ì •í•˜ëŠ” ë²•
-     * 1. ì‹±ê¸€ ìŠ¤ë ˆë“œë¡œ 1000ê±´ ì—…ë°ì´íŠ¸ ì‹œê°„ì„ ì¸¡ì •.
-     * 2. ë³‘ë ¬ë„ë¥¼ ì ì°¨ ëŠ˜ë ¤ì„œ ì²˜ë¦¬ì†ë„ í–¥ìƒ ë¹„ìœ¨ì´ 1.5ë°° ì´í•˜ë¡œ ë–¨ì–´ì§€ëŠ” ì§€ì ì´ I/O í—ˆìš© í•œê³„
+     * DB I/O Çã¿ë·® ±âÁØÀ¸·Î º´·Äµµ °áÁ¤ÇÏ´Â ¹ý
+     * 1. ½Ì±Û ½º·¹µå·Î 1000°Ç ¾÷µ¥ÀÌÆ® ½Ã°£À» ÃøÁ¤.
+     * 2. º´·Äµµ¸¦ Á¡Â÷ ´Ã·Á¼­ Ã³¸®¼Óµµ Çâ»ó ºñÀ²ÀÌ 1.5¹è ÀÌÇÏ·Î ¶³¾îÁö´Â ÁöÁ¡ÀÌ I/O Çã¿ë ÇÑ°è
      */
 
     @Bean(name = "asyncExecutor")
@@ -23,35 +23,35 @@ public class AsyncConfig {
     public ThreadPoolTaskExecutor asyncExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
 
-        // ì‹±ê¸€ ìŠ¤ë ˆë“œ êµ¬ì„±
+        // ½Ì±Û ½º·¹µå ±¸¼º
 		executor.setCorePoolSize(1);
 		executor.setMaxPoolSize(1);
 		executor.setQueueCapacity(1);
 
-         // ë™ì‹œì— ì‹¤í–‰í•  ê¸°ë³¸ ìŠ¤ë ˆë“œ ìˆ˜
-         // CPU ì½”ì–´ ê°œìˆ˜ì™€ ë¹„ìŠ·í•˜ê²Œ í•˜ëŠ”ê²Œ ì ì ˆ
+         // µ¿½Ã¿¡ ½ÇÇàÇÒ ±âº» ½º·¹µå ¼ö
+         // CPU ÄÚ¾î °³¼ö¿Í ºñ½ÁÇÏ°Ô ÇÏ´Â°Ô ÀûÀý
 //        executor.setCorePoolSize(4);
 
-        // íê°€ ê°€ë“ ì°¼ì„ë•Œ ì¶”ê°€ë¡œ í™•ìž¥ ê°€ëŠ¥í•œ ìµœëŒ€ ìŠ¤ë ˆë“œ ìˆ˜
-        // DB ê³¼ë¶€í•˜ ë°©ì§€ìš© ì œí•œ, CPU ì½”ì–´ ê°œìˆ˜ 2ë°°ì •ë„ê°€ ì ì ˆ
-        // DB I/O ì—¬ìœ ê°€ ë§Žìœ¼ë©´ ì¢€ë” ë†’ì—¬ë„ ë¬´ë°©, ë™ì‹œ ì»¤ë°‹/ë½ ê²½ìŸì´ ìš°ë ¤ëœë‹¤ë©´ ë‚®ì¶°ì•¼í•¨
+        // Å¥°¡ °¡µæ Ã¡À»¶§ Ãß°¡·Î È®Àå °¡´ÉÇÑ ÃÖ´ë ½º·¹µå ¼ö
+        // DB °úºÎÇÏ ¹æÁö¿ë Á¦ÇÑ, CPU ÄÚ¾î °³¼ö 2¹èÁ¤µµ°¡ ÀûÀý
+        // DB I/O ¿©À¯°¡ ¸¹À¸¸é Á»´õ ³ô¿©µµ ¹«¹æ, µ¿½Ã Ä¿¹Ô/¶ô °æÀïÀÌ ¿ì·ÁµÈ´Ù¸é ³·Ãç¾ßÇÔ
 //        executor.setMaxPoolSize(8);
 
-        // ëŒ€ê¸° í ìš©ëŸ‰
-        // í•´ë‹¹ê°œìˆ˜ë§Œí¼ ë¹„ë™ê¸° ìž‘ì—…ëŒ€ê¸° ê°€ëŠ¥, ë„ˆë¬´ í¬ë©´ ë©”ëª¨ë¦¬ ì ìœ ìœ¨ ë†’ì•„ì§
-        // ì²­í¬ ì´ ê°œìˆ˜ ~500ê°œ  100~200 ê¶Œìž¥
-        // ì²­í¬ ì´ ê°œìˆ˜ 1000~3000ê°œ 300~500 ê¶Œìž¥
-        // ì²­í¬ ì´ ê°œìˆ˜ 1ë§Œê°œ ì´ìƒ 1000 ì •ë„(ì´ˆê³¼ëŠ” ë¹„íš¨ìœ¨)
+        // ´ë±â Å¥ ¿ë·®
+        // ÇØ´ç°³¼ö¸¸Å­ ºñµ¿±â ÀÛ¾÷´ë±â °¡´É, ³Ê¹« Å©¸é ¸Þ¸ð¸® Á¡À¯À² ³ô¾ÆÁü
+        // Ã»Å© ÃÑ °³¼ö ~500°³  100~200 ±ÇÀå
+        // Ã»Å© ÃÑ °³¼ö 1000~3000°³ 300~500 ±ÇÀå
+        // Ã»Å© ÃÑ °³¼ö 1¸¸°³ ÀÌ»ó 1000 Á¤µµ(ÃÊ°ú´Â ºñÈ¿À²)
 //        executor.setQueueCapacity(500);
 
         /**
-         * ìŠ¤ë ˆë“œí’€ì´ ê½‰ì°¨ë©´, ë‹¤ìŒ ìš”ì²­ì€ ë¹„ë™ê¸° ëŒ€ì‹  ë™ê¸°ì ìœ¼ë¡œ ì‹¤í–‰
-         * ê±°ì ˆ(RejectedExecution) ì˜ˆì™¸ ì•ˆ ëœ¨ê³ , ì‹œìŠ¤í…œì´ ìŠ¤ìŠ¤ë¡œ ì†ë„ë¥¼ ëŠ¦ì¶”ë©° ì•ˆì •ì ìœ¼ë¡œ ì²˜ë¦¬
+         * ½º·¹µåÇ®ÀÌ ²ËÂ÷¸é, ´ÙÀ½ ¿äÃ»Àº ºñµ¿±â ´ë½Å µ¿±âÀûÀ¸·Î ½ÇÇà
+         * °ÅÀý(RejectedExecution) ¿¹¿Ü ¾È ¶ß°í, ½Ã½ºÅÛÀÌ ½º½º·Î ¼Óµµ¸¦ ´ÊÃß¸ç ¾ÈÁ¤ÀûÀ¸·Î Ã³¸®
          */
         executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
 
-        // ë¡œê·¸ í™•ì¸ ì‹œ ìŠ¤ë ˆë“œ ì‹ë³„, ë””ë²„ê¹…ì‹œ ì‚¬ìš©
-        // ë¡œê·¸ì— ì§€ì •í•œ ì´ë¦„ [Async-Update-1], [Async-DML-2] í˜•íƒœë¡œ ì°íž˜
+        // ·Î±× È®ÀÎ ½Ã ½º·¹µå ½Äº°, µð¹ö±ë½Ã »ç¿ë
+        // ·Î±×¿¡ ÁöÁ¤ÇÑ ÀÌ¸§ [Async-Update-1], [Async-DML-2] ÇüÅÂ·Î ÂïÈû
         executor.setThreadNamePrefix("Async-DML-");
         executor.initialize();
         return executor;

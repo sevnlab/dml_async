@@ -3,18 +3,14 @@ package com.example.dml_async.async.listener;
 
 import com.example.dml_async.config.ChunkProcessor;
 import com.example.dml_async.async.dto.AsyncEventDto;
-import com.example.dml_async.async.dto.ResultDto;
 import com.example.dml_async.async.service.DmlService;
 import com.example.dml_async.common.util.SystemUtil;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -24,105 +20,86 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * ë¹„ë™ê¸° ì´ë²¤íŠ¸ ì²˜ë¦¬, ì•Œë¦¼, ë¡œê·¸, ë°°ì¹˜ íŠ¸ë¦¬ê±°
+ * ºñµ¿±â ÀÌº¥Æ® Ã³¸®, ¾Ë¸², ·Î±×, ¹èÄ¡ Æ®¸®°Å
  */
-@Slf4j
 @Component
 @RequiredArgsConstructor
 public class AsyncEventListener {
+
+    private static final Logger log = LoggerFactory.getLogger("INFO");
+
     private final ChunkProcessor chunkProcessor;
     private final DmlService dmlService;
 
-    // ë¹ˆ ì§ì ‘ ì£¼ì… ìŠ¤ë ˆë“œ í’€ ìƒíƒœ í™•ì¸ìš©
+    // ºó Á÷Á¢ ÁÖÀÔ ½º·¹µå Ç® »óÅÂ È®ÀÎ¿ë
     private final ThreadPoolTaskExecutor asyncExecutor;
 
-    // ëŒ€ëŸ‰ ì—…ë°ì´íŠ¸ ëŒ€ìƒ íŒŒì¼ ê²½ë¡œ
-    // private static final Path FILE_PATH = Path.of("/dat/seven/service/proc/seven-tx/updateFile.txt");
-
-    // ì²­í¬ í¬ê¸° (í•œ ë²ˆì— ì—…ë°ì´íŠ¸í•  ë‹¨ìœ„)
+    // Ã»Å© Å©±â (ÇÑ ¹ø¿¡ ¾÷µ¥ÀÌÆ®ÇÒ ´ÜÀ§)
     private static final int CHUNK_SIZE = 300;
 
-    /** Async => Controller ì‘ë‹µì´ ì¦‰ì‹œ ë¦¬í„´ */
+    /** Async => Controller ÀÀ´äÀÌ Áï½Ã ¸®ÅÏ */
     @Async("asyncExecutor")
     @EventListener
     public void handleEvent(AsyncEventDto event) {
 
         int totalCount = 0;
 
-        log.info("ë¹„ë™ê¸° ì´ë²¤íŠ¸ ìˆ˜ì‹ ");
+        log.info("ºñµ¿±â ÀÌº¥Æ® ¼ö½Å");
         log.info("===================================");
         log.info("[AsyncService] asyncExecutor Thread Pool Info");
         log.info("CorePoolSize : {}", asyncExecutor.getCorePoolSize());
         log.info("MaxPoolSize : {}", asyncExecutor.getMaxPoolSize());
-        log.info("PoolSize(í˜„ì¬): {}", asyncExecutor.getPoolSize());
-        log.info("ActiveCount(ì‹¤í–‰ì¤‘): {}", asyncExecutor.getActiveCount());
-        log.info("QueueSize(ëŒ€ê¸°): {}", asyncExecutor.getThreadPoolExecutor().getQueue().size());
+        log.info("PoolSize(ÇöÀç): {}", asyncExecutor.getPoolSize());
+        log.info("ActiveCount(½ÇÇàÁß): {}", asyncExecutor.getActiveCount());
+        log.info("QueueSize(´ë±â): {}", asyncExecutor.getThreadPoolExecutor().getQueue().size());
         log.info("===================================");
 
-        SystemUtil.printStatus("ë¹„ë™ê¸° ì—…ë°ì´íŠ¸ ì‹œì‘");
+        SystemUtil.printStatus("ºñµ¿±â ¾÷µ¥ÀÌÆ® ½ÃÀÛ");
         Instant start = Instant.now();
 
-        Path filePath = Path.of(event.getFilePath());
-        log.info("íŒŒì¼ ê²½ë¡œ : {}", filePath);
+        Path filePath = Path.of(event.getUploadFilePath());
+        log.info("ÆÄÀÏ °æ·Î : {}", filePath);
 
-        // Files.lines()ëŠ” ë‚´ë¶€ì ìœ¼ë¡œ BufferedReaderë¥¼ ì‚¬ìš©, ê³µë°± ì œê±°, "" í•„í„°ë§
-//        try (Stream<String> lines = Files.lines(Path.of(event.getFilePath()))) {
         try (Stream<String> lines = Files.lines(filePath)) {
 
-            // [1] íŒŒì¼ ì „ì²´ ì½ê¸° (1íšŒ)
+            // ÆÄÀÏ ÀĞ±â
             List<String> allLines = lines.map(String::trim)
                     .filter(s -> !s.isEmpty())
                     .collect(Collectors.toList());
             totalCount = allLines.size();
-            log.info("ì´ {}ê±´ì˜ ë°ì´í„° í™•ì¸ë¨", totalCount);
-            SystemUtil.printStatus("íŒŒì¼ ì½ê¸° ì™„ë£Œ");
+            log.info("ÆÄÀÏ µ¥ÀÌÅÍ °Ç¼ö = " + totalCount);
+            SystemUtil.printStatus("ÆÄÀÏ ÀĞ±â ¿Ï·á");
 
-            // [2] ë¹„ë™ê¸° ì²­í¬ ì²˜ë¦¬ ì‹œì‘
             submitChunksInBatches(allLines, totalCount, event);
 
-        } catch (IOException e) {
-            log.error("íŒŒì¼ ì½ê¸° ì‹¤íŒ¨: {}", filePath, e);
+        } catch (IOException | InterruptedException e) {
+            log.error("ÆÄÀÏ ÀĞ±â ½ÇÆĞ = " + filePath, e);
         }
 
         Instant end = Instant.now();
-        log.info("ì „ì²´ ì‘ì—… ë“±ë¡ ì™„ë£Œ (ì´ ì†Œìš”: {}ì´ˆ)", Duration.between(start, end).toSeconds());
+        log.info("ÀüÃ¼ ÀÛ¾÷ µî·Ï ¿Ï·á (ÃÑ ¼Ò¿ä: {}ÃÊ)", Duration.between(start, end).toSeconds());
     }
 
-    /**
-     * íŒŒì¼ ë°ì´í„°ë¥¼ CHUNK_SIZE ë‹¨ìœ„ë¡œ ë‚˜ëˆ„ì–´ ë¹„ë™ê¸° DML ìˆ˜í–‰
-     */
-    private void submitChunksInBatches(List<String> allLines, int totalCount, AsyncEventDto eventDto) throws IOException {
+    private void submitChunksInBatches(List<String> allLines, int totalCount, AsyncEventDto eventDto) throws IOException, InterruptedException {
         int chunkCount = (int) Math.ceil((double) totalCount / CHUNK_SIZE);
-        log.info("ì´ {}ê°œì˜ ì²­í¬ë¡œ ë¶„í• í•˜ì—¬ DML ì‹œì‘", chunkCount);
+        log.info("ÃÑ {}°³ÀÇ Ã»Å©·Î ºĞÇÒÇÏ¿© DML ½ÃÀÛ", chunkCount);
+
+        if(eventDto.getDmlType().equals("SELECT")) {
+            dmlService.initSelectProcess(chunkCount);
+        }
 
         for (int i = 0; i < totalCount; i += CHUNK_SIZE) {
             int end = Math.min(i + CHUNK_SIZE, totalCount);
 
-            /** new ArrayList<>(subList()) ë¡œ ì°¸ì¡° ë³µì‚¬ â†’ GCê°€ ì›ë³¸ ë¦¬ìŠ¤íŠ¸ë¥¼ ìœ ì§€í•˜ì§€ ì•Šë„ë¡ í•¨ */
             List<String> chunk = new ArrayList<>(allLines.subList(i, end));
+            Thread.sleep(4000);
 
-            /** ê° ì²­í¬ë¥¼ ì™„ì „íˆ ë³„ë„ ìŠ¤ë ˆë“œë¡œ ì‹¤í–‰ */
             chunkProcessor.processChunkAsync(chunk, eventDto);
         }
 
-        if(eventDto.getDmlType().equals("SELECT")) {
-            List<ResultDto> resultDtoList = dmlService.getTotalResult();
-
-            // ì €ì¥
-            log.info("ì €ì¥ë  ë°ì´í„° ê±´ìˆ˜ : {}", resultDtoList.size());
-
-            // txt ë¡œ ì €ì¥
-            BufferedWriter bw = new BufferedWriter(new FileWriter("C:\\Users\\tekim\\Desktop\\updateFile.txt"));
-
-            for(ResultDto d : resultDtoList) {
-                bw.write(d.toString());
-                bw.newLine();
-            }
-            bw.close();
-        }
     }
-
-
 }

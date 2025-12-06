@@ -17,23 +17,23 @@ import java.util.Map;
 public class AsyncApiController {
     private final AsyncFacadeService asyncFacadeService;
 
-    // ë¹„ë™ê¸° DML ì²˜ë¦¬
-    // ë¹„ë™ê¸° ì—…ë°ì´íŠ¸ ì‹¤í–‰
-    @PostMapping("/update-async")
+    // ºñµ¿±â DML Ã³¸®
+    // ºñµ¿±â ¾÷µ¥ÀÌÆ® ½ÇÇà
+    @PostMapping("/dml")
     public ResponseEntity<Map<String, Object>> updateAsync(@RequestBody AsyncEventDto request) {
         if ("TEST_AUTH".equals(request.getAuth())){
             try {
                 asyncFacadeService.publishAsyncEvent(request);
             } catch (Exception e) {
-                System.out.println("ë¹„ë™ê¸° ì´ë²¤íŠ¸ ì²˜ë¦¬ ì¤‘ ì˜¤ë¥˜ ë°œìƒ(" +  e.getMessage() + ")");
+                System.out.println("ºñµ¿±â ÀÌº¥Æ® Ã³¸® Áß ¿À·ù ¹ß»ı(" +  e.getMessage() + ")");
 
             }
             return ResponseEntity.ok()
                     .body(Map.of(
-                            "message", "ë¹„ë™ê¸° ì´ë²¤íŠ¸ê°€ ë°œí–‰ë˜ì—ˆìŠµë‹ˆë‹¤. (jobName=" + request.getJobName() + ")"
+                            "message", "ºñµ¿±â ÀÌº¥Æ®°¡ ¹ßÇàµÇ¾ú½À´Ï´Ù. (jobName=" + request.getJobName() + ")"
                     ));
         } else {
-            // ì—ëŸ¬ì²˜ë¦¬
+            // ¿¡·¯Ã³¸®
             throw new CustomException(ResponseCode.C910);
         }
     }

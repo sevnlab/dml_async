@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration packages="kr.co.kcp.npgdev.dmlprocess" status="WARN">
+    <!-- ===============================
+         1. 공통 속성 정의
+    ================================== -->
+    <Properties>
+        <!-- 로그 기본 경로 -->
+        <Property name="LOG_PATH">D:\logs</Property>
+
+        <!-- 파일용 패턴 (색상 없음, %M %L 제거로 성능 최적화) -->
+        <Property name="LOG_PATTERN">[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%-5level] [%X{traceId}] %thread %logger{36} - %msg%n</Property>
+
+        <!-- 콘솔용 패턴 (색상 강조, ANSI 활성화) -->
+        <Property name="COLORED_PATTERN">[%style{%d{yyyy-MM-dd HH:mm:ss.SSS}}{cyan}][%highlight{%-5level}{FATAL=red blink, ERROR=red, WARN=yellow bold, INFO=green, DEBUG=blue}][%style{%X{traceId}}{magenta}] %thread %logger{36} - %msg%n
+        </Property>
+    </Properties>
+
+    <!-- ===============================
+         2. Appender 정의
+    ================================== -->
+    <Appenders>
+
+        <!-- 콘솔 로그 (색상 강조) -->
+        <Console name="CONSOLE" target="SYSTEM_OUT">
+            <PatternLayout pattern="${COLORED_PATTERN}"
+                           disableAnsi="false"
+                           noConsoleNoAnsi="false"/>
+        </Console>
+
+        <!-- 공통 INFO 로그 -->
+        <RollingFile name="INFO_FILE"
+                     fileName="${LOG_PATH}/info.log"
+                     filePattern="${LOG_PATH}/info-%d{yyyy-MM-dd}.log">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+            </Policies>
+        </RollingFile>
+
+        <!-- SQL 로그 -->
+        <RollingFile name="SQL_FILE"
+                     fileName="${LOG_PATH}/sql.log"
+                     filePattern="${LOG_PATH}/sql-%d{yyyy-MM-dd}.log">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+            </Policies>
+        </RollingFile>
+
+        <!-- 공통 ERROR 로그 -->
+        <RollingFile name="ERROR_FILE"
+                     fileName="${LOG_PATH}/error.log"
+                     filePattern="${LOG_PATH}/error-%d{yyyy-MM-dd}.log">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <Filters>
+                <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+            </Policies>
+        </RollingFile>
+    </Appenders>
+
+    <!-- ===============================
+         3. Logger 정의
+    ================================== -->
+    <Loggers>
+
+        <!-- 애플리케이션 공통 로그 -->
+        <Logger name="INFO" level="info" additivity="false">
+            <AppenderRef ref="INFO_FILE"/>
+            <AppenderRef ref="ERROR_FILE"/>
+        </Logger>
+
+        <!-- 애플리케이션 공통 로그 -->
+        <Logger name="SQL" level="info" additivity="false">
+            <AppenderRef ref="SQL_FILE"/>
+        </Logger>
+
+        <!-- Root: 콘솔만 출력 -->
+        <Root level="info">
+            <AppenderRef ref="CONSOLE"/>
+            <AppenderRef ref="INFO"/>
+            <AppenderRef ref="SQL"/>
+        </Root>
+    </Loggers>
+
+</Configuration>

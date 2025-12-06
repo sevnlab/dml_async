@@ -13,26 +13,26 @@ import org.springframework.stereotype.Service;
 import java.util.Arrays;
 
 /**
- * ë°œí–‰ì(publisher) ì—­í•  ì„œë¹„ìŠ¤
+ * ¹ßÇàÀÚ(publisher) ¿ªÇÒ ¼­ºñ½º
  */
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class AsyncFacadeService {
 
-    // ìŠ¤í”„ë§ ì´ë²¤íŠ¸ ê¸°ë°˜ ë¹„ë™ê¸° íŠ¸ë¦¬ê±°
+    // ½ºÇÁ¸µ ÀÌº¥Æ® ±â¹İ ºñµ¿±â Æ®¸®°Å
     private final ApplicationEventPublisher eventPublisher;
 
     public void publishAsyncEvent(AsyncEventDto asyncEventDto) {
 
-        // JOB Name ê²€ì¦
+        // JOB Name °ËÁõ
         JobName jobName = Arrays.stream(JobName.values())
                 .filter(target -> target.name().equalsIgnoreCase(asyncEventDto.getJobName()))
                 .findFirst()
                 .orElseThrow(() -> new CustomException(ResponseCode.E400));
 
 
-        // ---- ìš”ì²­ê°ì²´ë¥¼ ì‹¤ì–´ì„œ ì´ë²¤íŠ¸ ë°œí–‰ ----
+        // ---- ¿äÃ»°´Ã¼¸¦ ½Ç¾î¼­ ÀÌº¥Æ® ¹ßÇà ----
         eventPublisher.publishEvent(asyncEventDto);
     }
 }

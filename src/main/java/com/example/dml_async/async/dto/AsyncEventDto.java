@@ -20,9 +20,12 @@ public class AsyncEventDto {
     @NonNull
     private String dmlType;
 
-    // ìœˆë„ìš°ì—ì„œ ì½ì„ë•Œ "filePath":"C:\\Users\\tekim\\Desktop\\updateFile.txt"
+    // À©µµ¿ì¿¡¼­ ÀĞÀ»¶§ "filePath":"C:\\Users\\tekim\\Desktop\\updateFile.txt"
+
     @NonNull
-    private String filePath;
+    private String uploadFilePath;
+
+    private String downloadFilePath;
 
 
 }

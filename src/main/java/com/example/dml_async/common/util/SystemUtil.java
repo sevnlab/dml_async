@@ -12,26 +12,26 @@ public class SystemUtil {
     private static final OperatingSystemMXBean osBean =
             (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
 
-    /** ì‹œìŠ¤í…œ ìƒíƒœ ì¶œë ¥ */
+    /** ½Ã½ºÅÛ »óÅÂ Ãâ·Â */
     public static void printStatus(String title) {
         Runtime rt = Runtime.getRuntime();
 
         double usedMem = (rt.totalMemory() - rt.freeMemory()) / (1024.0 * 1024.0);
         double totalMem = rt.totalMemory() / (1024.0 * 1024.0);
         double maxMem = rt.maxMemory() / (1024.0 * 1024.0);
-        double cpuJvm = osBean.getProcessCpuLoad() * 100; // JVM í”„ë¡œì„¸ìŠ¤ ìžì²´ì˜ CPU ì‚¬ìš©ë¥ 
-        double cpuSys = osBean.getSystemCpuLoad() * 100; // ì‹œìŠ¤í…œ ì „ì²´ CPU ì‚¬ìš©ë¥ 
+        double cpuJvm = osBean.getProcessCpuLoad() * 100; // JVM ÇÁ·Î¼¼½º ÀÚÃ¼ÀÇ CPU »ç¿ë·ü
+        double cpuSys = osBean.getSystemCpuLoad() * 100; // ½Ã½ºÅÛ ÀüÃ¼ CPU »ç¿ë·ü
 
         log.info("===========================================");
         log.info(String.format("[%s]", title));
-        log.info(String.format("JVM ì‚¬ìš© ë©”ëª¨ë¦¬: %.2f MB / ì „ì²´: %.2f MB (ìµœëŒ€: %.2f MB)", usedMem, totalMem, maxMem));
-        log.info(String.format("CPU ì‚¬ìš©ë¥ : JVM %.1f%%, System %.1f%%", cpuJvm, cpuSys));
-        log.info(String.format("Thread count: %d", Thread.activeCount())); // JVM ë‚´ í™œì„± ìŠ¤ë ˆë“œ ê°œìˆ˜ í‘œì‹œ
+        log.info(String.format("JVM »ç¿ë ¸Þ¸ð¸®: %.2f MB / ÀüÃ¼: %.2f MB (ÃÖ´ë: %.2f MB)", usedMem, totalMem, maxMem));
+        log.info(String.format("CPU »ç¿ë·ü: JVM %.1f%%, System %.1f%%", cpuJvm, cpuSys));
+        log.info(String.format("Thread count: %d", Thread.activeCount())); // JVM ³» È°¼º ½º·¹µå °³¼ö Ç¥½Ã
         log.info("===========================================");
 
-        // ìž„ê³„ê°’ ê²½ê³  (ì„ íƒ)
-        if (cpuSys > 85) log.warn("System CPUê°€ 85% ì´ˆê³¼ - ë£¨í”„ ì†ë„ ì¡°ì ˆ í•„ìš”!"); // í•´ë‹¹ê°’ì´ ë†’ì•„ì§€ë©´ DB ìª½ ë¶€í•˜ë¥¼ ì˜ì‹¬
-        if (usedMem / maxMem * 100 > 80) log.warn("JVM ë©”ëª¨ë¦¬ 80% ì´ˆê³¼ - GC ë˜ëŠ” ì²­í¬ í¬ê¸° ì¡°ì ˆ í•„ìš”!");
+        // ÀÓ°è°ª °æ°í (¼±ÅÃ)
+        if (cpuSys > 85) log.warn("System CPU°¡ 85% ÃÊ°ú - ·çÇÁ ¼Óµµ Á¶Àý ÇÊ¿ä!"); // ÇØ´ç°ªÀÌ ³ô¾ÆÁö¸é DB ÂÊ ºÎÇÏ¸¦ ÀÇ½É
+        if (usedMem / maxMem * 100 > 80) log.warn("JVM ¸Þ¸ð¸® 80% ÃÊ°ú - GC ¶Ç´Â Ã»Å© Å©±â Á¶Àý ÇÊ¿ä!");
 
         log.info("===========================================");
     }

@@ -4,6 +4,8 @@ import com.example.dml_async.async.dto.AsyncEventDto;
 import com.example.dml_async.async.service.DmlService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -13,22 +15,22 @@ import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class ChunkProcessor {
+    private static final Logger log = LoggerFactory.getLogger("INFO");
     private final DmlService dmlService;
 
     @Async("asyncExecutor")
     public CompletableFuture<Void> processChunkAsync(List<String> pkList, AsyncEventDto eventDto) {
-//        log.info("[{}] 角青", Thread.currentThread().getName());
         try {
             if(eventDto.getDmlType().equals("SELECT")) {
-                dmlService.processSelect(pkList, eventDto.getJobName());
+                dmlService.processSelect(pkList, eventDto);
+//            } else if(eventDto.getDmlType().equals("SELECTALL")) {
+//                dmlService.processSelectAll(pkList, eventDto);
             } else {
                 dmlService.updateChunk(pkList, eventDto.getJobName());
             }
         } catch(Exception e) {
-            System.out.println(Thread.currentThread().getName());
-            System.out.println(e.getMessage());
+            log.error("[{}] ?? ??? ????(size={})", Thread.currentThread().getName(), pkList.size(), e);
         }
         return CompletableFuture.completedFuture(null);
     }

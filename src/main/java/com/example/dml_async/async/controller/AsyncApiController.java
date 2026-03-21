@@ -1,40 +1,47 @@
 package com.example.dml_async.async.controller;
 
+import com.example.dml_async.aop.Comments;
 import com.example.dml_async.async.dto.AsyncEventDto;
 import com.example.dml_async.async.service.AsyncFacadeService;
 import com.example.dml_async.common.code.ResponseCode;
 import com.example.dml_async.common.exception.CustomException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-//@CustomLog
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/dmlProcess")
 public class AsyncApiController {
+
     private final AsyncFacadeService asyncFacadeService;
 
-    // ∫Òµø±‚ DML √≥∏Æ
-    // ∫Òµø±‚ æ˜µ•¿Ã∆Æ Ω««‡
-    @PostMapping("/dml")
-    public ResponseEntity<Map<String, Object>> updateAsync(@RequestBody AsyncEventDto request) {
-        if ("TEST_AUTH".equals(request.getAuth())){
-            try {
-                asyncFacadeService.publishAsyncEvent(request);
-            } catch (Exception e) {
-                System.out.println("∫Òµø±‚ ¿Ã∫•∆Æ √≥∏Æ ¡ﬂ ø¿∑˘ πﬂª˝(" +  e.getMessage() + ")");
+    // application.yml Ïùò api.key Í∞íÏùÑ Ï£ºÏûÖ
+    @Value("${api.key}")
+    private String apiKey;
 
-            }
-            return ResponseEntity.ok()
-                    .body(Map.of(
-                            "message", "∫Òµø±‚ ¿Ã∫•∆Æ∞° πﬂ«‡µ«æ˙Ω¿¥œ¥Ÿ. (jobName=" + request.getJobName() + ")"
-                    ));
-        } else {
-            // ø°∑Ø√≥∏Æ
+    @Comments("DML_API_REQUEST")
+    @PostMapping("/dml")
+    public ResponseEntity<Map<String, Object>> updateAsync(
+            @RequestHeader("X-API-KEY") String requestApiKey,
+            @RequestBody AsyncEventDto request) {
+
+        if (!apiKey.equals(requestApiKey)) {
             throw new CustomException(ResponseCode.C910);
         }
+
+        try {
+            asyncFacadeService.publishAsyncEvent(request);
+        } catch (Exception e) {
+            throw new CustomException(ResponseCode.A100);
+        }
+
+        return ResponseEntity.ok()
+                .body(Map.of(
+                        "message", "ÎπÑÎèôÍ∏∞ Ïù¥Î≤§Ìä∏Í∞Ä Îì±Î°ùÎêòÏóàÏäµÎãàÎã§. (jobName=" + request.getJobName() + ")"
+                ));
     }
 }

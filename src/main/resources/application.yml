@@ -1,3 +1,6 @@
+api:
+  key: KP    # X-API-KEY 헤더 인증값, 외부 노출 주의
+
 spring:
   profiles:
     include: common

@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum JobName {
     TB_TEST_TABLE("TB_TEST_TABLE"),
-    TB_NEW_TABLE("TB_WALLET_POINT_TRADE_COPY")
+    TB_WALLET_POINT_TRADE_COPY("TB_WALLET_POINT_TRADE_COPY")
     ;
 
     private final String jobName;

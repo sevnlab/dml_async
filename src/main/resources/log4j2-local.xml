@@ -68,6 +68,7 @@
 
         <!-- 애플리케이션 공통 로그 -->
         <Logger name="INFO" level="info" additivity="false">
+            <AppenderRef ref="CONSOLE"/>
             <AppenderRef ref="INFO_FILE"/>
             <AppenderRef ref="ERROR_FILE"/>
         </Logger>

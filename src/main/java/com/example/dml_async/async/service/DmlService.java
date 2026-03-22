@@ -1,5 +1,6 @@
 package com.example.dml_async.async.service;
 
+import com.example.dml_async.aop.Comments;
 import com.example.dml_async.async.dto.AsyncEventDto;
 import com.example.dml_async.async.repository.AsyncRepository;
 import com.example.dml_async.common.util.SystemUtil;
@@ -9,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -19,6 +21,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -43,11 +46,30 @@ public class DmlService {
         List<String> list = this.asyncRepository.bulkSelect(pkList, eventDto.getJobName());
         resultStorage.addAll(list);
         int finishedChunkCount = this.finishChunk.incrementAndGet();
-        log.info("¿Ï·á Ã»Å© °³¼ö : {}", finishedChunkCount);
+        log.info("ì™„ë£Œ ì²­í¬ ê°œìˆ˜ : {}", finishedChunkCount);
         if (finishedChunkCount == this.totalChunkCount) {
             this.createFile(resultStorage, eventDto.getDownloadFilePath());
         }
 
+    }
+
+    /**
+     * ëŒ€ìš©ëŸ‰ INSERT ì²­í¬ ì²˜ë¦¬
+     * - rawLines: TXT íŒŒì¼ì—ì„œ ì½ì€ ì›ë³¸ ë¼ì¸ ëª©ë¡
+     * - êµ¬ë¶„ìë¡œ ë¶„ë¦¬ í›„ bulkInsert í˜¸ì¶œ
+     */
+    @Comments("BULK_INSERT_CHUNK")
+    @Transactional
+    public void processInsert(List<String> rawLines, AsyncEventDto eventDto, List<String> columnNames) {
+        String delimiter = "^";
+
+        // delimiter ì— ë„£ì€ ê°’ì„ ë¦¬í„°ëŸ´ë¡œ ì²˜ë¦¬
+        // -1  = ë§ˆì§€ë§‰ ë¹ˆ ê°’ë„ ë³´ì¡´.
+        List<String[]> rows = rawLines.stream()
+                .map(line -> line.split(Pattern.quote(delimiter), -1))
+                .collect(java.util.stream.Collectors.toList());
+
+        asyncRepository.bulkInsert(rows, eventDto.getJobName(), columnNames);
     }
 
     public void initSelectProcess(int ChunkCount) {
@@ -57,9 +79,9 @@ public class DmlService {
     }
 
     public void createFile(List<String> data, String downloadFilePath) {
-        log.info("ÆÄÀÏ¿¡ ÀúÀåÇÒ µ¥ÀÌÅÍ °Ç¼ö : {}", data.size());
+        log.info("íŒŒì¼ì— ì €ì¥í•  ë°ì´í„° ê±´ìˆ˜ : {}", data.size());
         File file = new File(downloadFilePath);
-        SystemUtil.printStatus("ÆÄÀÏ ¾²±â ½ÃÀÛ");
+        SystemUtil.printStatus("íŒŒì¼ ì“°ê¸° ì‹œì‘");
 
         try {
             BufferedWriter bw = new BufferedWriter(new FileWriter(file));
@@ -84,10 +106,10 @@ public class DmlService {
 
             bw.close();
         } catch (IOException var9) {
-            log.info("ÆÄÀÏ »ı¼º ½ÇÆĞ : {}", var9.getMessage());
+            log.info("íŒŒì¼ ìƒì„± ì‹¤íŒ¨ : {}", var9.getMessage());
             throw new RuntimeException(var9);
         }
 
-        SystemUtil.printStatus("ÆÄÀÏ ¾²±â ¿Ï·á");
+        SystemUtil.printStatus("íŒŒì¼ ì“°ê¸° ì™„ë£Œ");
     }
 }

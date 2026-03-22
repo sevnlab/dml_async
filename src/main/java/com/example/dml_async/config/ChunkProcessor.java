@@ -30,7 +30,7 @@ public class ChunkProcessor {
                 dmlService.updateChunk(pkList, eventDto.getJobName());
             }
         } catch(Exception e) {
-            log.error("[{}] ?? ??? ????(size={})", Thread.currentThread().getName(), pkList.size(), e);
+            log.error("[{}] 청크 처리 예외 발생(size={})", Thread.currentThread().getName(), pkList.size(), e);
         }
         return CompletableFuture.completedFuture(null);
     }

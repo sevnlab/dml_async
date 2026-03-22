@@ -3,6 +3,7 @@ api:
 
 spring:
   profiles:
+    active: local
     include: common
 ---
 
@@ -11,20 +12,20 @@ spring:
     activate:
       on-profile: local
   datasource:
-    url: jdbc:oracle:thin:아이피:포트:데이터베이스명
-    username:
-    password:
+    url: jdbc:oracle:thin:@127.0.0.1:1521:orcl # localhost (127.0.0.1)
+    username: SEVEN
+    password: SEVEN
     driver-class-name: oracle.jdbc.OracleDriver
 
     hikari:
-      minimum-idle: 10
-      maximum-pool-size: 20
-      connection-timeout: 30000
-      validation-timeout: 5000
-      idle-timeout: 60000
-      max-lifetime: 1800000
+      minimum-idle: 10 # 아무 요청 없어도 항상 유지하는 최소 커넥션 수, DB와 미리 연결 10개 유지
+      maximum-pool-size: 20 # 동시에 열 수 있는 최대 커넥션 수, 기본값 10
+      connection-timeout: 30000 # 커넥션 풀이 꽉 찼을 때 빈 커넥션이 생길 때까지 기다리는 시간. 초과 시 예외
+      validation-timeout: 5000 # 커넥션이 살아있는지 확인(ping) 하는 제한 시간
+      idle-timeout: 60000 # minimum-idle 초과 커넥션이 놀고 있으면 이 시간 후 반납. 최소10개는 유지
+      max-lifetime: 1800000 # 커넥션 최대 수명. 30분이 지나면 강제 교체 (DB측 세션 만료 대비)
 logging:
-  config: classpath:log4j2-dr.xml
+  config: classpath:log4j2-local.xml
 
 ---
 

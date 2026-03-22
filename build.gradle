@@ -20,6 +20,14 @@ repositories {
 	}
 }
 
+configurations {
+	all {
+		// log4j2 사용 시 기본 logback 제거 (SLF4J 충돌 방지)
+		exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+		exclude group: 'ch.qos.logback', module: 'logback-classic'
+	}
+}
+
 dependencies {
 
 	implementation 'org.springframework.boot:spring-boot-starter-aop'
@@ -42,7 +50,7 @@ dependencies {
 }
 
 tasks.withType(JavaCompile).configureEach {
-	options.encoding("x-windows-949")
+	options.encoding("UTF-8")
 }
 
 clean {

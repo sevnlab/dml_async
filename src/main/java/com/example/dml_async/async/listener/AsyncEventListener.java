@@ -59,8 +59,20 @@ public class AsyncEventListener {
     public void handleEvent(AsyncEventDto event) {
 
         // INSERT 는 전용 고속 경로로 분기 (기존 UPDATE/SELECT 로직 불변)
-        if ("INSERT".equals(event.getDmlType())) {
+        if ("INSERT".equalsIgnoreCase(event.getDmlType())) {
             handleBulkInsert(event);
+            return;
+        }
+
+        // SELECT 는 테이블 전체 조회 후 txt 파일 출력
+        if ("SELECT".equalsIgnoreCase(event.getDmlType())) {
+            handleSelectAll(event);
+            return;
+        }
+
+        // DELETE 는 테이블 전체 삭제 (TRUNCATE)
+        if ("DELETE".equalsIgnoreCase(event.getDmlType())) {
+            handleDeleteAll(event);
             return;
         }
 
@@ -100,6 +112,43 @@ public class AsyncEventListener {
 
         Instant end = Instant.now();
         log.info("전체 작업 완료 (소요시간: {}초)", Duration.between(start, end).toSeconds());
+    }
+
+    /**
+     * 테이블 전체 삭제 (TRUNCATE)
+     */
+    private void handleDeleteAll(AsyncEventDto event) {
+        log.info("===================================");
+        log.info("[Delete] 테이블 전체 삭제 시작: {}", event.getJobName());
+        log.info("===================================");
+        SystemUtil.printStatus("테이블 전체 삭제 시작");
+        Instant start = Instant.now();
+
+        dmlService.processDeleteAll(event);
+
+        Instant end = Instant.now();
+        log.info("[Delete] 완료 (소요시간: {}초)", Duration.between(start, end).toSeconds());
+        SystemUtil.printStatus("테이블 전체 삭제 완료");
+    }
+
+    /**
+     * 테이블 전체 SELECT → txt 파일 출력
+     * - jobName 을 테이블명으로 사용
+     * - downloadFilePath 경로에 ^ 구분자 txt 파일 생성
+     */
+    private void handleSelectAll(AsyncEventDto event) {
+        log.info("===================================");
+        log.info("[SelectAll] 테이블 전체 조회 시작: {}", event.getJobName());
+        log.info("[SelectAll] 저장 경로: {}", event.getDownloadFilePath());
+        log.info("===================================");
+        SystemUtil.printStatus("테이블 전체 조회 시작");
+        Instant start = Instant.now();
+
+        dmlService.processSelectAll(event);
+
+        Instant end = Instant.now();
+        log.info("[SelectAll] 완료 (소요시간: {}초)", Duration.between(start, end).toSeconds());
+        SystemUtil.printStatus("테이블 전체 조회 완료");
     }
 
     /**
@@ -194,7 +243,8 @@ public class AsyncEventListener {
                 int done = totalInserted.addAndGet(chunk.size());
                 log.info("[BulkInsert] 청크 #{} 완료 ({}건, 누적: {}건)", idx, chunk.size(), done);
             } catch (Exception e) {
-                log.error("[BulkInsert] 청크 #{} INSERT 실패 (size={})", idx, chunk.size(), e);
+                log.error("[BulkInsert] 청크 #{} INSERT 실패 (size={}건) → 실패 파일에 저장", idx, chunk.size(), e);
+                dmlService.saveFailedChunk(chunk, columnNames, event.getUploadFilePath());
             }
         }, bulkInsertExecutor));
     }

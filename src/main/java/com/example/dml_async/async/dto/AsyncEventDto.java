@@ -18,10 +18,9 @@ public class AsyncEventDto {
     @NonNull
     private String dmlType;      // UPDATE / SELECT / INSERT
 
-    // 윈도우에서 읽을때 예시::"D:\\Users\\tekim\\Desktop\\updateFile.txt"
-    // 윈도우에서 읽을때 예시::"D:\\test_data\\TB_WALLET_POINT_TRADE_202603211915_CHANG2.txt"
-    // 리눅스에서 읽을때 예시:
-    @NonNull
+    // 경로 쓸때 참고
+    // 윈도우 uploadFilePath 예시: "D:\\test_data\\TB_WALLET_POINT_TRADE_202603211915.txt"
+    // 리눅스 uploadFilePath 예시: "/home/seven/data/TB_WALLET_POINT_TRADE_202603211915.txt"
     private String uploadFilePath;
     private String downloadFilePath;
 

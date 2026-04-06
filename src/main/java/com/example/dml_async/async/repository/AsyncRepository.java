@@ -11,11 +11,13 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -147,6 +149,42 @@ public class AsyncRepository {
         });
     }
 
+    /**
+     * 테이블 전체 조회 후 ^ 구분자 형식의 라인 목록 반환
+     * - 첫 번째 원소: 컬럼명 헤더 (COL1^COL2^...)
+     * - 이후 원소:   데이터 행 (val1^val2^...)
+     */
+    public List<String> selectAllFromTable(String tableName) {
+        String sql = "SELECT * FROM " + tableName;
+        log.info("[SelectAll] 실행 SQL: {}", sql);
+
+        return jdbcTemplate.query(sql, rs -> {
+            List<String> lines = new ArrayList<>();
+            ResultSetMetaData meta = rs.getMetaData();
+            int colCount = meta.getColumnCount();
+
+            // 헤더 라인
+            StringBuilder header = new StringBuilder();
+            for (int i = 1; i <= colCount; i++) {
+                if (i > 1) header.append("^");
+                header.append(meta.getColumnName(i));
+            }
+            lines.add(header.toString());
+
+            // 데이터 라인
+            while (rs.next()) {
+                StringBuilder row = new StringBuilder();
+                for (int i = 1; i <= colCount; i++) {
+                    if (i > 1) row.append("^");
+                    Object val = rs.getObject(i);
+                    row.append(val != null ? val.toString() : "");
+                }
+                lines.add(row.toString());
+            }
+            return lines;
+        });
+    }
+
     public List<String> bulkSelect(List<String> pkList, String jobName) {
 
         String sql = "";
@@ -166,6 +204,12 @@ public class AsyncRepository {
         query.setParameter("pkList", pkList);
         List<String> result = query.getResultList();
         return result.stream().map(Object::toString).toList();
+    }
+
+    public void truncateTable(String tableName) {
+        String sql = "TRUNCATE TABLE " + tableName;
+        log.info("[Delete] 실행 SQL: {}", sql);
+        jdbcTemplate.execute(sql);
     }
 
 }

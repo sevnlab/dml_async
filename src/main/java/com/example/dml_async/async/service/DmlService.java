@@ -72,6 +72,61 @@ public class DmlService {
         asyncRepository.bulkInsert(rows, eventDto.getJobName(), columnNames);
     }
 
+    /**
+     * 테이블 전체 SELECT → txt 파일 출력
+     * - 첫 줄: 컬럼명 (^ 구분자)
+     * - 이후: 데이터 행 (^ 구분자)
+     */
+    @Transactional(readOnly = true)
+    public void processSelectAll(AsyncEventDto eventDto) {
+        log.info("[SelectAll] 테이블 조회 시작: {}", eventDto.getJobName());
+        List<String> lines = asyncRepository.selectAllFromTable(eventDto.getJobName());
+        log.info("[SelectAll] 조회 완료: {}건 (헤더 포함)", lines.size());
+        createFile(lines, eventDto.getDownloadFilePath());
+    }
+
+    /**
+     * INSERT 실패 청크를 별도 파일에 append 저장
+     * - 파일명: 원본파일명_FAILED.txt (예: data.txt → data_FAILED.txt)
+     * - 헤더는 파일이 새로 생성될 때만 첫 줄에 한 번 기록
+     * - 멀티스레드 환경이므로 synchronized 로 파일 쓰기 직렬화
+     */
+    public synchronized void saveFailedChunk(List<String> rawLines, List<String> columnNames, String uploadFilePath) {
+        // 원본 파일 경로에서 _FAILED.txt 파일명 생성
+        // 예: D:\data\TB_TRADE.txt → D:\data\TB_TRADE_FAILED.txt
+        String failedFilePath;
+        int dotIndex = uploadFilePath.lastIndexOf('.');
+        if (dotIndex > 0) {
+            failedFilePath = uploadFilePath.substring(0, dotIndex) + "_FAILED" + uploadFilePath.substring(dotIndex);
+        } else {
+            failedFilePath = uploadFilePath + "_FAILED.txt";
+        }
+
+        File file = new File(failedFilePath);
+        boolean isNew = !file.exists();
+
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(file, true))) { // append 모드
+            // 파일이 새로 생성되는 경우에만 헤더 기록
+            if (isNew) {
+                bw.write(String.join("^", columnNames));
+                bw.newLine();
+            }
+            for (String line : rawLines) {
+                bw.write(line);
+                bw.newLine();
+            }
+            log.info("[BulkInsert] 실패 데이터 {}건 → {}", rawLines.size(), failedFilePath);
+        } catch (IOException e) {
+            log.error("[BulkInsert] 실패 파일 저장 오류: {}", failedFilePath, e);
+        }
+    }
+
+    public void processDeleteAll(AsyncEventDto eventDto) {
+        log.info("[Delete] 테이블 전체 삭제 시작: {}", eventDto.getJobName());
+        asyncRepository.truncateTable(eventDto.getJobName());
+        log.info("[Delete] 테이블 전체 삭제 완료: {}", eventDto.getJobName());
+    }
+
     public void initSelectProcess(int ChunkCount) {
         this.totalChunkCount = ChunkCount;
         this.finishChunk.set(0);

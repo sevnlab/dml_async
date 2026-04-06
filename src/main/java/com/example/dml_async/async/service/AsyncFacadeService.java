@@ -25,11 +25,14 @@ public class AsyncFacadeService {
 
     public void publishAsyncEvent(AsyncEventDto asyncEventDto) {
 
-        // JOB Name 검증
-        JobName jobName = Arrays.stream(JobName.values())
-                .filter(target -> target.name().equalsIgnoreCase(asyncEventDto.getJobName()))
-                .findFirst()
-                .orElseThrow(() -> new CustomException(ResponseCode.E400));
+        // SELECT / DELETE 는 jobName = 테이블명 직접 입력 방식이므로 enum 검증 스킵
+        if (!"SELECT".equalsIgnoreCase(asyncEventDto.getDmlType())
+                && !"DELETE".equalsIgnoreCase(asyncEventDto.getDmlType())) {
+            Arrays.stream(JobName.values())
+                    .filter(target -> target.name().equalsIgnoreCase(asyncEventDto.getJobName()))
+                    .findFirst()
+                    .orElseThrow(() -> new CustomException(ResponseCode.E400));
+        }
 
         // ---- 요청객체를 실어서 이벤트 발행 ----
         eventPublisher.publishEvent(asyncEventDto);

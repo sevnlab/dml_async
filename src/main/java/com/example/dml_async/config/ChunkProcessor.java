@@ -22,7 +22,7 @@ public class ChunkProcessor {
     @Async("asyncExecutor")
     public CompletableFuture<Void> processChunkAsync(List<String> pkList, AsyncEventDto eventDto) {
         try {
-            if(eventDto.getDmlType().equals("SELECT")) {
+            if("SELECT".equalsIgnoreCase(eventDto.getDmlType())) {
                 dmlService.processSelect(pkList, eventDto);
 //            } else if(eventDto.getDmlType().equals("SELECTALL")) {
 //                dmlService.processSelectAll(pkList, eventDto);
